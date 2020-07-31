@@ -1,5 +1,6 @@
 package org.edi3.jsonld;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -11,6 +12,7 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
 import java.io.*;
 import java.util.*;
+import org.edi3.*;
 
 public class BSPToJSONLDVocabulary {
 
@@ -27,6 +29,7 @@ public class BSPToJSONLDVocabulary {
             rowIterator.next();
         }
         Map<String, Entity> vocabulary = new HashMap<String, Entity>();
+        Map<String, String> classMapping = new HashMap<String, String>();
         while (rowIterator.hasNext()){
             Row row = rowIterator.next();
             Entity entity = new Entity();
@@ -80,6 +83,43 @@ public class BSPToJSONLDVocabulary {
 
             }
         }
+        for (String key:classesMap.keySet()){
+            Set<Entity> entities = classesMap.get(key);
+            Set<String> classTermQualifiers = new HashSet<String>();
+            for (Entity entity:entities) {
+                if (StringUtils.isNotEmpty(entity.getObjectClassTermQualifier())) {
+                    classTermQualifiers.add(entity.getObjectClassTermQualifier());
+                }
+            }
+            for (Entity entity:entities) {
+                if (entity.objectClassTermQualifier == null){
+                    entity.setObjectClassTermQualifier("");
+                }
+                String id = key;
+                if(entities.size()>1){
+                    if(entity.getObjectClassTermQualifier().startsWith("Referenced")){
+                        if(classTermQualifiers.contains(StringUtils.substringAfter(entity.getObjectClassTermQualifier(), "Referenced"))){
+                            id = "Referenced".concat(key);
+                        }
+                    } else {
+                        if(!classTermQualifiers.contains("Referenced".concat(entity.getObjectClassTermQualifier()))){
+                            id = entity.getObjectClassTermQualifier().concat(key);
+                        }
+                    }                    
+                }
+                classMapping.put(entity.getObjectClassTermQualifier().concat(entity.getObjectClassTerm()), id);
+                JsonObjectBuilder rdfClass = Json.createObjectBuilder();
+                rdfClass.add("@id", "edi3:".concat(id));
+                rdfClass.add("@type", "rdfs:Class");
+                if (entity.getDescription()!=null) {
+                    rdfClass.add("rdfs:comment", entity.getDescription());
+                }
+                rdfClass.add("rdfs:label", entity.getName());
+                rdfClass.add("edi3:cefactID", entity.getId());
+                graphJsonArrayBuilder.add(rdfClass);
+            }
+        }
+
         Map<String,Set<Entity>> refinedPropertiesMap = new HashMap<String, Set<Entity>>();
         for (String key:propertiesMap.keySet()){
             Set<Entity> entities = propertiesMap.get(key);
@@ -87,7 +127,7 @@ public class BSPToJSONLDVocabulary {
                 refinedPropertiesMap.put(key, entities);
             } else {
                 for (Entity entity:entities){
-                    String newKey = entity.objectClassTerm.concat(key);
+                    String newKey = classMapping.get(entity.getObjectClassTermQualifier().concat(entity.getObjectClassTerm())).concat(key);
                     Set<Entity> newEntities = new HashSet<Entity>();
                     if(refinedPropertiesMap.containsKey(newKey)){
                         newEntities = refinedPropertiesMap.get(newKey);
@@ -98,7 +138,7 @@ public class BSPToJSONLDVocabulary {
             }
         }
 
-        Map<String,Set<Entity>> finalPropertiesMap = new HashMap<String, Set<Entity>>();
+        /* Map<String,Set<Entity>> finalPropertiesMap = new HashMap<String, Set<Entity>>();
         for (String key:refinedPropertiesMap.keySet()){
             Set<Entity> entities = refinedPropertiesMap.get(key);
             if (entities.size() == 1){
@@ -114,46 +154,40 @@ public class BSPToJSONLDVocabulary {
                     finalPropertiesMap.put(newKey, newEntities);
                 }
             }
-        }
-        ;
-        for (String key:classesMap.keySet()){
-            Set<Entity> entities = classesMap.get(key);
-            for (Entity entity:entities) {
-                if (entity.objectClassTermQualifier == null){
-                    entity.setObjectClassTermQualifier("");
-                }
-                String id = entities.size()==1?key:entity.getObjectClassTermQualifier().concat(key);
-                JsonObjectBuilder rdfClass = Json.createObjectBuilder();
-                rdfClass.add("@id", "bsp:".concat(id));
-                rdfClass.add("@type", "rdfs:Class");
-                if (entity.getDescription()!=null) {
-                    rdfClass.add("rdfs:comment", entity.getDescription());
-                }
-                rdfClass.add("rdfs:label", entity.getName());
-                graphJsonArrayBuilder.add(rdfClass);
-            }
-        }
-        for (String key:finalPropertiesMap.keySet()){
-            Set<Entity> entities = finalPropertiesMap.get(key);
+        } */
+        for (String key:refinedPropertiesMap.keySet()){
+            Set<Entity> entities = refinedPropertiesMap.get(key);
             for (Entity entity:entities) {
                 if (entity.objectClassTermQualifier == null){
                     entity.setObjectClassTermQualifier("");
                 }
                 String id = entities.size()==1?key:entity.getObjectClassTermQualifier().concat(key);
                 JsonObjectBuilder rdfProperty = Json.createObjectBuilder();
-                rdfProperty.add("@id", "bsp:".concat(id));
+                rdfProperty.add("@id", "edi3:".concat(id));
                 rdfProperty.add("@type", "rdfs:Property");
                 if (entity.getType().equalsIgnoreCase("BBIE")) {
-                    rdfProperty.add("rdfs:range", "ccl:".concat(entity.getDataTypeQualifier().concat(entity.getRepresentationTerm())));
+                    //TODO: properly resolve data tyeps - qulaifiers, codes etc.
+                    rdfProperty.add("rdfs:range", getData(entity.getRepresentationTerm()));
                 }else {
-                    rdfProperty.add("rdfs:range", "bsp:".concat(entity.getAssociatedObjectClassTerm()));
+                    String associatedKey =entity.getAssociatedObjectClassTerm();
+                    if(entity.getAssociatedObjectClassTermQualifier() == null){
+                        entity.setAssociatedObjectClassTermQualifier("");
+                    }
+                    associatedKey = entity.getAssociatedObjectClassTermQualifier().concat(associatedKey);
+                    String resolvedRange = classMapping.get(associatedKey);
+                    if(resolvedRange == null){
+                        resolvedRange = associatedKey;
+                        System.out.println("Unresolved range - " + resolvedRange);
+                    }
+                    rdfProperty.add("rdfs:range", "edi3:".concat(resolvedRange));
                 }
                 if (entity.getDescription()!=null) {
                     rdfProperty.add("rdfs:comment", entity.getDescription());
                 }
-                String domain = uniqueClasses.contains(entity.getObjectClassTerm())?entity.objectClassTerm:entity.objectClassTermQualifier.concat(entity.objectClassTerm);
-                rdfProperty.add("rdfs:domain", "bsp:".concat(domain));
+                String domain = classMapping.get(entity.getObjectClassTermQualifier().concat(entity.getObjectClassTerm()));
+                rdfProperty.add("rdfs:domain", "edi3:".concat(domain));
                 rdfProperty.add("rdfs:label", entity.getName());
+                rdfProperty.add("edi3:cefactID", entity.getId());
                 graphJsonArrayBuilder.add(rdfProperty);
             }
         }
@@ -185,6 +219,59 @@ public class BSPToJSONLDVocabulary {
     }
     static String cleanUp(String attribute){
         return attribute.replaceAll(" ", "").replaceAll("_", "").replaceAll("-", "").replaceAll("/", "")/*.replaceAll(".","")*/;
+    }
+
+    static String getData(String dataType){
+        try {
+        UNType unType = UNType.valueOf(dataType.toUpperCase());
+        switch (unType){
+            case INDICATOR:
+                return "xsd:boolean";
+            case IDENTIFIER:
+                return "xsd:token";//???
+            case CODE:
+                return "xsd:token";
+            case TEXT:
+                return "xsd:string";
+            case DATETIME:
+                return "xsd:dateTime";
+            case AMOUNT:
+                return "xsd:decimal";
+            case PERCENT:
+                return "xsd:decimal";
+            case RATE:
+                return "xsd:decimal";
+            case DATE:
+                return "xsd:date";
+            case QUANTITY:
+                return "xsd:decimal";
+            case VALUE:
+                return "xsd:string";
+            case BINARYOBJECT:
+                return "xsd:base64Binary";
+            case NUMERIC:
+                return "xsd:decimal";
+            case MEASURE:
+                return "xsd:decimal";
+            case TYPE:
+                return "xsd:string";
+            case TIME:
+                return "xsd:time";
+            case GRAPHIC:
+                return "xsd:base64Binary";  
+            case PICTURE:
+                return "xsd:base64Binary";
+            case VIDEO:
+                return "xsd:base64Binary";
+            case SOUND:
+                return "xsd:base64Binary";
+        }
+
+        } catch (IllegalArgumentException e){
+            System.out.println(String.format("Check data type %s", dataType));
+            return dataType;
+        }
+        return dataType;
     }
 
 }

@@ -1,0 +1,623 @@
+{
+    "@context": [
+        {
+            "@version": 1.1,
+            "id": "@id",
+            "type": "@type",
+            "dc": "http://purl.org/dc/terms/",
+            "sec": "https://w3id.org/security#",
+            "xsd": "http://www.w3.org/2001/XMLSchema#",
+            "edi3": "http://edi3.org/vocab#"
+        },
+        {
+            "@version": 1.1,
+            "@vocab": "edi3",
+            "TradeParty":{
+                "@id": "edi3:TradeParty",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "iD":{
+                        "@id": "edi3:TradePartyID",
+                        "@type": "xsd:token"
+                    },
+                    "name": {
+                        "@id": "edi3:TradePartyName",
+                        "@type": "xsd:string"
+                    },
+                    "postalAddress":{
+                        "@id": "edi3:TradePartyPostalAddress",
+                        "@context": {
+                            "@vocab": "edi3",
+                            "@propagate": true,
+                            "line1":{
+                                "@id": "edi3:TradeAddressLineOne",
+                                "@type": "xsd:string"
+                            },
+                            "line2":{
+                                "@id": "edi3:TradeAddressLineTwo",
+                                "@type": "xsd:string"
+                            },
+                            "cityName": {
+                                "@id": "edi3:TradeAddressCityName",
+                                "@type": "xsd:string"
+                            },
+                            "postcode": {
+                                "@id": "edi3:TradeAddressPostcode",
+                                "@type": "xsd:string"
+                            },
+                            "countrySubDivisionName": {
+                                "@id": "edi3:TradeAddressCountrySubDivisionName",
+                                "@type": "xsd:string"
+                            },
+                            "countryCode": {
+                                "@id": "edi3:TradeAddressCountryCode",
+                                "@type": "xsd:string"
+                            }
+                        }
+                    }
+                }
+            },
+            "TradeCountry":{
+                "@id": "edi3:TradeParty",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "code": {
+                        "@id": "edi3:CountryCode",
+                        "@type": "xsd:string"
+                    },
+                    "name": {
+                        "@id": "edi3:CountryName",
+                        "@type": "xsd:string"
+                    }
+                }
+            },
+            "Authentication": {
+                "@id": "edi3:Authentication",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "signature": {
+                        "@id": "edi3:SignatoryText",
+                        "@type": "xsd:string"
+                    },
+                    "actualDateTime": {
+                        "@id": "edi3:AuthenticationActualDateTime",
+                        "@type": "xsd:datetime"
+                    },
+                    "statement": {
+                        "@id": "edi3:AuthenticationStatement",
+                        "@type": "xsd:string"
+                    }
+                }
+            },
+            "LogisticsLocation": {
+                "@id": "edi3:LogisticsLocation",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "iD":{
+                        "@id": "edi3:LogisticsLocationID",
+                        "@type": "xsd:token"
+                    },
+                    "name": {
+                        "@id": "edi3:LogisticsLocationName",
+                        "@type": "xsd:string"
+                    }
+                }
+            },
+            "Document": {
+                "@id": "edi3:Document",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "iD":{
+                        "@id": "edi3:DocumentID",
+                        "@type": "xsd:token"
+                    },
+                    "formattedIssueDateTime": {
+                        "@id": "edi3:DocumentFormattedIssueDateTime",
+                        "@type": "xsd:dateTime"
+                    },
+                    "attachedBinaryFile": {
+                        "@id": "edi3:AttachedBinaryFile",
+                        "@context": {
+                            "@vocab": "edi3",
+                            "@propagate": true,
+                            "uRI":{
+                                "@id": "edi3:BinaryFileURI",
+                                "@type": "xsd:token"
+                            }
+                        }
+                    }
+                }
+            },
+            "TradeProduct": {
+                "@id": "edi3:TradeProduct",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "iD":{
+                        "@id": "edi3:TradeProductID",
+                        "@type": "xsd:token"
+                    },
+                    "description": {
+                        "@id": "edi3:TradeProductDescription",
+                        "@type": "xsd:string"
+                    },
+                    "harmonisedTariffCode": {
+                        "@id": "edi3:Classification",
+                        "@type": "edi3:Classification",
+                        "@context": {
+                            "@vocab": "edi3",
+                            "@propagate": true,
+                            "classCode": {
+                                "@id": "edi3:ClassCode",
+                                "@type": "xsd:string"
+                            },
+                            "className": {
+                                "@id": "edi3:ClassName",
+                                "@type": "xsd:string"
+                            }
+                        }
+                    },
+                    "originCountry": {
+                        "@id": "edi3:ProductOriginCountry",
+                        "@type": "edi3:TradeCountry"
+                    }
+                }
+            },
+            "SupplyChainTradeLineItem": {
+                "@id": "edi3:SupplyChainTradeLineItem",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "sequenceNumber":{
+                        "@id": "edi3:TradeLineItemSequenceNumber",
+                        "@type": "xsd:number"
+                    },
+                    "invoiceReference": {
+                        "@id": "edi3:InvoiceReferencedDocument",
+                        "@type": "edi3:Document"
+                    },
+                    "tradeProduct":{
+                        "@id": "edi3:SupplyChainTradeLineItemTradeProduct",
+                        "@type": "edi3:TradeProduct"
+                    }
+                }
+            },
+            "ConsignmentItem": {
+                "@id": "edi3:ConsignmentItem",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "iD": {
+                        "@id": "edi3:ConsignmentItemID",
+                        "@type": "xsd:token"
+                    },
+                    "information": {
+                        "@id": "edi3:ConsignmentItemInformation",
+                        "@type": "xsd:string"
+                    },
+                    "crossBorderRegulatoryProcedure": {
+                        "@id": "edi3:ConsignmentItemCrossBorderRegulatoryProcedure",
+                        "@type": "edi3:ConsignmentItemCrossBorderRegulatoryProcedure",
+                        "@context": {
+                            "@vocab": "edi3",
+                            "@propagate": true,
+                            "originCriteriaText": {
+                                "@id": "edi3:OriginCriteriaText",
+                                "@type": "xsd:string"
+                            }
+                        }
+                    },
+                    "manufacturer":{
+                        "@id": "edi3:ConsignmentItemManufacturer",
+                        "@type": "edi3:TradeParty"
+                    },
+                    "tradeLineItems": {
+                        "@id": "edi3:ConsignmentItemTradeLineItem",
+                        "@container": "@list",
+                        "@type": "edi3:SupplyChainTradeLineItem"
+                    }
+                }
+            },
+            "Event": {
+                "@id": "edi3:Event",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "departureDateTime":{
+                        "@id": "edi3:DepartureDateTime",
+                        "@type": "xsd:datetime"
+                    }
+                }
+            },
+            "LogisticsTransportMeans": {
+                "@id": "edi3:LogisticsTransportMeans",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "iD":{
+                        "@id": "edi3:LogisticsTransportMeansID",
+                        "@type": "xsd:token"
+                    },
+                    "name": {
+                        "@id": "edi3:LogisticsTransportMeansName",
+                        "@type": "xsd:string"
+                    }
+                }
+
+            },
+            "TransportMovement": {
+                "@id": "edi3:TransportMovement",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "iD":{
+                        "@id": "edi3:TransportMovementID",
+                        "@type": "xsd:token"
+                    },
+                    "name": {
+                        "@id": "edi3:TransportMovementName",
+                        "@type": "xsd:string"
+                    },
+                    "information": {
+                        "@id": "edi3:TransportMovementInformation",
+                        "@type": "xsd:string"
+                    },
+                    "departureEvent": {
+                        "@id": "edi3:DepartureEvent",
+                        "@type": "edi3:Event"
+                    },
+                    "usedTransportMeans": {
+                        "@id": "edi3:UsedTransportMeans",
+                        "@type": "edi3:LogisticsTransportMeans"
+                    }
+                }                                
+            },
+            "Package": {
+                "@id": "Package",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "iD": {
+                        "@id": "edi3:PackageID",
+                        "@type": "xsd:token"
+                    },
+                    "grossVolume": {
+                        "@id": "edi3:PackageGrossVolume",
+                        "@type": "edi3:Measure"
+                    },
+                    "grossWeight": {
+                        "@id": "edi3:PackageGrossWeight",
+                        "@type": "edi3:Measure"
+                    }
+                }
+            },
+            "Measure": {
+                "@id": "edi3:Measure",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "uom": {
+                        "@id": "edi3:UnitOfMeasure",
+                        "@type": "xsd:string"
+                    },
+                    "vaule": {
+                        "@id": "edi3:ValueOfMeasure",
+                        "@type": "xsd:string"
+                    }
+                }
+            },
+            "Consignment":{
+                "@id": "edi3:Consignment",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "iD": {
+                        "@id": "edi3:SupplyChainConsignmentID",
+                        "@type": "xsd:token"
+                    },
+                    "information": {
+                        "@id": "edi3:ConsignmentInformation",
+                        "@type": "xsd:string"
+                    },
+                    "exportCountry": {
+                        "@id": "edi3:ConsignmentExportCountry",
+                        "@type": "edi3:TradeCountry"
+                    },
+                    "exporter": {
+                        "@type": "edi3:TradeParty",
+                        "@id": "edi3:Exporter"
+                    },
+                    "importCountry": {
+                        "@id": "edi3:ImportCountry",
+                        "@type": "edi3:TradeCountry"
+                    },
+                    "importer": {
+                        "@id": "edi3:Importer",
+                        "@type": "edi3:TradeParty"
+                    },
+                    "includedConsignmentItems":{
+                        "@id": "edi3:IncludedConsignmentItem",
+                        "@container": "@list",
+                        "@type": "edi3:ConsignmentItem"                        
+                    },
+                    "loadingBaseportLocation": {
+                        "@id": "edi3:LoadingBaseportLocation",
+                        "@type": "edi3:LogisticsLocation"
+                    },
+                    "mainCarriageTransportMovement": {
+                        "@id": "edi3:MainCarriageTransportMovement",
+                        "@type": "edi3:TransportMovement"
+                    },
+                    "transportPackages":{
+                        "@id": "edi3:ConsignmentTransportPackage",
+                        "@container": "@list",
+                        "@type": "edi3:Package"
+                    }
+                }
+            },
+            "BinaryFile": {
+                "@id": "edi3:BinaryFile",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "uRI": {
+                        "@id": "edi3:BinaryFileURI",
+                        "@type": "xsd:token"
+                    },
+                    "encodingCode": {
+                        "@id": "edi3:EncodingCode",
+                        "@type": "xsd:token"
+                    },
+                    "mIMECode": {
+                        "@id": "edi3:MIMECode",
+                        "@type": "xsd:token"
+                    },
+                    "size": {
+                        "@id": "edi3:Size",
+                        "@type": "edi3:Measure"
+                    }
+                }
+            },
+            "CertificateOfOrigin": {
+                "@id": "edi3:CertificateOfOrigin",
+                "@context": {
+                    "@vocab": "edi3",
+                    "@propagate": true,
+                    "iD": {
+                        "@id": "edi3:ExchangedDocumentID",
+                        "@type": "xsd:token"
+                    },
+                    "issueDateTime": {
+                        "@id": "edi3:ExchangedDocumentIssueDateTime",
+                        "@type": "xsd:dateTime"
+                    },
+                    "name": {
+                        "@id": "edi3:ExchangedDocumentName",
+                        "@type": "xsd:string"
+                    },
+                    "attachedFile": {
+                        "@id": "edi3:AttachedFile",
+                        "@type": "edi3:BinaryFile"
+                    },
+                    "firstSignatoryAuthentication": {
+                        "@id": "edi3:FirstSignatoryAuthentication",
+                        "@type": "edi3:Authentication"
+                    },
+                    "secondSignatoryAuthentication": {
+                        "@id": "edi3:SecondSignatoryAuthentication",
+                        "@type": "edi3:Authentication"
+                    },
+                    "issueLocation": {
+                        "@id": "edi3:ExchangedDocumentIssueLocation",
+                        "@type": "edi3:LogisticsLocation"
+                    },
+                    "issuer": {
+                        "@id": "edi3:ExchangedDocumentIssuer",
+                        "@type": "edi3:TradeParty"
+                    },
+                    "status":{
+                        "@type": "xsd:string"
+                    },
+                    "isPreferential":{
+                        "@type": "xsd:boolean"
+                    },
+                    "freeTradeAgreement":{
+                        "@type": "xsd:string"
+                    },           
+                    "supplyChainConsignment": {
+                        "@id": "edi3:Consignment",
+                        "@type": "edi3:Consignment"
+                    }
+                }
+            }
+        }
+    ],
+    "certificateOfOrigin": {
+        "type": "CertificateOfOrigin",
+        "iD": "id:string",
+        "issueDateTime": "2020-07-06T22:53:01.607Z",
+        "name": "string",
+        "attachedFile": {
+            "type": "BinaryFile",
+            "uRI": "id:string",
+            "encodingCode": "string",
+            "mIMECode": "string",
+            "size": {
+                "type": "Measure",
+                "uom": "string",
+                "value": "string"
+            }
+        },
+        "firstSignatoryAuthentication": {
+            "type": "Authentication",
+            "signature": "string",
+            "actualDateTime": "2020-07-06T22:53:01.607Z",
+            "statement": "string"
+        },
+        "issueLocation": {
+            "type": "LogisticsLocation",
+            "iD": "id:string",
+            "name": "string"
+        },
+        "issuer": {
+            "type": "TradeParty",
+            "iD": "id:string",
+            "name": "string",
+            "postalAddress": {
+                "line1": "string",
+                "line2": "string",
+                "cityName": "string",
+                "postcode": "string",
+                "countrySubDivisionName": "string",
+                "countryCode": "AD"
+            }
+        },
+        "secondSignatoryAuthentication": {
+            "type": "Authentication",
+            "signature": "string",
+            "actualDateTime": "2020-07-06T22:53:01.608Z",
+            "statement": "string"
+        },
+        "status": "string",
+        "isPreferential": true,
+        "freeTradeAgreement": "string",
+        "supplyChainConsignment": {
+            "type": "Consignment",
+            "iD": "id:string",
+            "information": "string",
+            "exportCountry": {
+                "type": "TradeCountry",
+                "code": "AD",
+                "name": "string"
+            },
+            "exporter": {
+                "type": "TradeParty",
+                "iD": "id:string",
+                "name": "string",
+                "postalAddress": {
+                    "line1": "string",
+                    "line2": "string",
+                    "cityName": "string",
+                    "postcode": "string",
+                    "countrySubDivisionName": "string",
+                    "countryCode": "AD"
+                }
+            },
+            "importCountry": {
+                "type": "TradeCountry",
+                "code": "AD",
+                "name": "string"
+            },
+            "importer": {
+                "type": "TradeParty",
+                "iD": "id:string",
+                "name": "string",
+                "postalAddress": {
+                    "line1": "string",
+                    "line2": "string",
+                    "cityName": "string",
+                    "postcode": "string",
+                    "countrySubDivisionName": "string",
+                    "countryCode": "AD"
+                }
+            },
+            "includedConsignmentItems": [
+                {
+                    "type": "ConsignmentItem",
+                    "iD": "id:string",
+                    "information": "string",
+                    "crossBorderRegulatoryProcedure": {
+                        "originCriteriaText": "string"
+                    },
+                    "manufacturer": {
+                        "type": "TradeParty",
+                        "iD": "id:string",
+                        "name": "string",
+                        "postalAddress": {
+                            "line1": "string",
+                            "line2": "string",
+                            "cityName": "string",
+                            "postcode": "string",
+                            "countrySubDivisionName": "string",
+                            "countryCode": "AD"
+                        }
+                    },
+                    "tradeLineItems": [
+                        {
+                            "type": "SupplyChainTradeLineItem",
+                            "sequenceNumber": 0,
+                            "invoiceReference": {
+                                "type": "Document",
+                                "iD": "id:string",
+                                "formattedIssueDateTime": "2020-07-06T22:53:01.608Z",
+                                "attachedBinaryFile": {
+                                    "uRI": "id:string"
+                                }
+                            },
+                            "tradeProduct": {
+                                "type": "TradeProduct",
+                                "iD": "id:string",
+                                "description": "string",
+                                "harmonisedTariffCode": {
+                                    "type": "Classification",
+                                    "classCode": "string",
+                                    "className": "string"
+                                },
+                                "originCountry": {
+                                    "type": "TradeCountry",
+                                    "code": "AD",
+                                    "name": "string"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "loadingBaseportLocation": {
+                "type": "LogisticsLocation",
+                "iD": "id:string",
+                "name": "string"
+            },
+            "mainCarriageTransportMovement": {
+                "type": "TransportMovement",
+                "iD": "id:string",
+                "information": "string",
+                "departureEvent": {
+                    "type": "Event",
+                    "departureDateTime": "2020-07-06T22:53:01.608Z"
+                },
+                "usedTransportMeans": {
+                    "type": "LogisticsTransportMeans",
+                    "iD": "id:string",
+                    "name": "string"
+                }
+            },
+            "transportPackages": [
+                {
+                    "type": "Package",
+                    "iD": "id:string",
+                    "grossVolume": {
+                        "type": "Measure",
+                        "uom": "id:string",
+                        "value": "id:string"
+                    },
+                    "grossWeight": {
+                        "type": "Measure",
+                        "uom": "id:string",
+                        "value": "id:string"
+                    }
+                }
+            ],
+            "unloadingBaseportLocation": {
+                "type": "LogisticsLocation",
+                "iD": "id:string",
+                "name": "string"
+            }
+        }
+    }
+}

@@ -1,0 +1,144 @@
+{
+    "@context": [
+      "https://www.w3.org/2018/credentials/v1",
+      {
+        "@version": 1.1,
+        "id": "@id",
+        "type": "@type",
+        "dc": "http://purl.org/dc/terms/",
+        "sec": "https://w3id.org/security#",
+        "cred": "https://www.w3.org/2018/credentials/v1",
+        "xsd": "http://www.w3.org/2001/XMLSchema#",
+        "edi3": "http://edi3.org/vocab#"
+      },
+      {
+        "@version": 1.1,
+        "@vocab": "edi3",
+        "Organization": {
+          "@id": "edi3:Organization",
+          "@type": "@vocab",
+          "@context": {
+            "@vocab": "edi3",
+            "@propagate": true,
+            "name": {
+              "@type": "xsd:string"
+            }
+          }
+        },
+        "TransportMovement": {
+          "@id": "edi3:TransportMovement",
+          "@context": {
+            "@vocab": "edi3",
+            "@propagate": true
+          }
+        },
+        "Consignment": {
+          "@id": "edi3:Consignment",
+          "@context": {
+            "@vocab": "edi3",
+            "@propagate": true,
+            "isPreferential": {
+              "@type": "xsd:bool"
+            }
+          }
+        },
+        "edi3:MultisigChain": {
+          "@context": {
+            "proofChain": {
+              "@id": "edi3:proofChain",
+              "@container": "@list",
+              "@context": {
+                "@vocab": "sec"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "type": [
+      "VerifiableCredential",
+      "CertificateOfOrigin"
+    ],
+    "id": "https://border.gov.au/certificates/coo/235-6jgf2-6236",
+    "issuer": {
+      "id": "https://border.gov.au/",
+      "type": "Organization",
+      "name": "DIBP",
+      "postalAddress": {
+        "cityName": "string",
+        "postcode": "string",
+        "countryCode": "AU"
+      }
+    },
+    "issuanceDate": "2010-01-01T19:23:24Z",
+    "proof": {
+      "type": "edi3:MultisigChain",
+      "proofChain": [
+        {
+          "type": "sec:Ed25519Signature2018",
+          "created": "2020-04-17T18:03:18Z",
+          "verificationMethod": "did:example:123#key-1",
+          "signatureValue": "5TcawVLuoqRjCuu4jAmRqBcKoab1YVqxG8RXnQwvQBHNwP7RhPwXh"
+        },
+        {
+          "type": "sec:Ed25519Signature2018",
+          "created": "2020-04-17T18:04:37Z",
+          "verificationMethod": "https://border.gov.au/authority#key-1",
+          "signatureValue": "7FcakrTYoqRjCuu4jAmRqBcKoab1YVqxG8RXnQwvQBHNwP7RhLgEw"
+        }
+      ]
+    },
+    "credentialSchema": {
+      "id": "https://edi3.org/schemas/coo.json",
+      "type": "edi3:JsonSchemaValidator2020"
+    },
+    "credentialSubject": {
+      "id": "https://maersk.com/consignments/h5762gh2357ty",
+      "type": "Consignment",
+      "isPreferential": true,
+      "freeTradeAgreement": "string",
+      "exporter": {
+        "id": "http://example-export.org",
+        "name": "Exporter inc.",
+        "postalAddress": {
+          "cityName": "string",
+          "postcode": "string",
+          "countryCode": "AU"
+        }
+      },
+      "importer": {
+        "id": "http://example-import.org",
+        "name": "Importer inc.",
+        "postalAddress": {
+          "cityName": "string",
+          "postcode": "string",
+          "countryCode": "AD"
+        }
+      },
+      "includedConsignmentItems": [
+        {
+          "id": "76782824879",
+          "manufacturer": {
+            "id": "http://business.gov.au/ABN/72782546",
+            "name": "Tasty Muffins inc.",
+            "postalAddress": {
+              "cityName": "string",
+              "postcode": "string",
+              "countryCode": "AD"
+            }
+          }
+        }
+      ]
+    },
+    "mainCarriageTransportMovement": {
+      "id": "http://maersk.com/transportmovements/b351-6h47677-g61a",
+      "type": "TransportMovement",
+      "departureEvent": {
+        "departureDateTime": "2020-07-06T22:53:01.608Z"
+      },
+      "usedTransportMeans": {
+        "id": "id:string",
+        "name": "string"
+      }
+    }
+  }
