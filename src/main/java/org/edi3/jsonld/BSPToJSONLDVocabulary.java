@@ -80,7 +80,7 @@ public class BSPToJSONLDVocabulary {
             if(classesMap.get(className).size()==1){
                 uniqueClasses.add(className);
             } else {
-
+                System.err.println("Not unique className - " + className);
             }
         }
         for (String key:classesMap.keySet()){
@@ -119,7 +119,9 @@ public class BSPToJSONLDVocabulary {
                 graphJsonArrayBuilder.add(rdfClass);
             }
         }
-
+        if(classMapping.size()!=218){
+            System.err.println("Unexpected number of ABIEs - " + classMapping.size());
+        }
         Map<String,Set<Entity>> refinedPropertiesMap = new HashMap<String, Set<Entity>>();
         for (String key:propertiesMap.keySet()){
             Set<Entity> entities = propertiesMap.get(key);
@@ -138,6 +140,9 @@ public class BSPToJSONLDVocabulary {
             }
         }
 
+        if(refinedPropertiesMap.size()!=2888){
+            System.err.println("Unexpected number of ASBIEs/BBIEs - " + refinedPropertiesMap.size());
+        }
         /* Map<String,Set<Entity>> finalPropertiesMap = new HashMap<String, Set<Entity>>();
         for (String key:refinedPropertiesMap.keySet()){
             Set<Entity> entities = refinedPropertiesMap.get(key);
