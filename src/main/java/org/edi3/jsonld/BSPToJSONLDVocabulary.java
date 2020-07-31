@@ -92,9 +92,6 @@ public class BSPToJSONLDVocabulary {
                 }
             }
             for (Entity entity:entities) {
-                if (entity.objectClassTermQualifier == null){
-                    entity.setObjectClassTermQualifier("");
-                }
                 String id = key;
                 if(entities.size()>1){
                     if(entity.getObjectClassTermQualifier().startsWith("Referenced")){
@@ -107,7 +104,7 @@ public class BSPToJSONLDVocabulary {
                         }
                     }                    
                 }
-                classMapping.put(entity.getObjectClassTermQualifier().concat(entity.getObjectClassTerm()), id);
+                classMapping.put(entity.getClassTermWithQualfier(), id);
                 JsonObjectBuilder rdfClass = Json.createObjectBuilder();
                 rdfClass.add("@id", "edi3:".concat(id));
                 rdfClass.add("@type", "rdfs:Class");
@@ -129,7 +126,7 @@ public class BSPToJSONLDVocabulary {
                 refinedPropertiesMap.put(key, entities);
             } else {
                 for (Entity entity:entities){
-                    String newKey = classMapping.get(entity.getObjectClassTermQualifier().concat(entity.getObjectClassTerm())).concat(key);
+                    String newKey = classMapping.get(entity.getClassTermWithQualfier()).concat(key);
                     Set<Entity> newEntities = new HashSet<Entity>();
                     if(refinedPropertiesMap.containsKey(newKey)){
                         newEntities = refinedPropertiesMap.get(newKey);
@@ -140,17 +137,14 @@ public class BSPToJSONLDVocabulary {
             }
         }
 
-        if(refinedPropertiesMap.size()!=2888){
-            System.err.println("Unexpected number of ASBIEs/BBIEs - " + refinedPropertiesMap.size());
-        }
-        /* Map<String,Set<Entity>> finalPropertiesMap = new HashMap<String, Set<Entity>>();
+        Map<String,Set<Entity>> finalPropertiesMap = new HashMap<String, Set<Entity>>();
         for (String key:refinedPropertiesMap.keySet()){
             Set<Entity> entities = refinedPropertiesMap.get(key);
             if (entities.size() == 1){
                 finalPropertiesMap.put(key, entities);
             } else {
                 for (Entity entity:entities){
-                    String newKey = entity.objectClassTermQualifier.concat(key);
+                    String newKey = entity.getObjectClassTermQualifier().concat(key);
                     Set<Entity> newEntities = new HashSet<Entity>();
                     if(finalPropertiesMap.containsKey(newKey)){
                         newEntities = finalPropertiesMap.get(newKey);
@@ -159,13 +153,13 @@ public class BSPToJSONLDVocabulary {
                     finalPropertiesMap.put(newKey, newEntities);
                 }
             }
-        } */
-        for (String key:refinedPropertiesMap.keySet()){
-            Set<Entity> entities = refinedPropertiesMap.get(key);
+        }
+        if(finalPropertiesMap.size()!=2888){
+            System.err.println("Unexpected number of ASBIEs/BBIEs - " + finalPropertiesMap.size());
+        }
+        for (String key:finalPropertiesMap.keySet()){
+            Set<Entity> entities = finalPropertiesMap.get(key);
             for (Entity entity:entities) {
-                if (entity.objectClassTermQualifier == null){
-                    entity.setObjectClassTermQualifier("");
-                }
                 String id = entities.size()==1?key:entity.getObjectClassTermQualifier().concat(key);
                 JsonObjectBuilder rdfProperty = Json.createObjectBuilder();
                 rdfProperty.add("@id", "edi3:".concat(id));
@@ -174,11 +168,7 @@ public class BSPToJSONLDVocabulary {
                     //TODO: properly resolve data tyeps - qulaifiers, codes etc.
                     rdfProperty.add("rdfs:range", getData(entity.getRepresentationTerm()));
                 }else {
-                    String associatedKey =entity.getAssociatedObjectClassTerm();
-                    if(entity.getAssociatedObjectClassTermQualifier() == null){
-                        entity.setAssociatedObjectClassTermQualifier("");
-                    }
-                    associatedKey = entity.getAssociatedObjectClassTermQualifier().concat(associatedKey);
+                    String associatedKey =entity.getAssociatedClassTermWithQualifier();
                     String resolvedRange = classMapping.get(associatedKey);
                     if(resolvedRange == null){
                         resolvedRange = associatedKey;
@@ -189,7 +179,10 @@ public class BSPToJSONLDVocabulary {
                 if (entity.getDescription()!=null) {
                     rdfProperty.add("rdfs:comment", entity.getDescription());
                 }
-                String domain = classMapping.get(entity.getObjectClassTermQualifier().concat(entity.getObjectClassTerm()));
+                String domain = classMapping.get(entity.getClassTermWithQualfier());
+                if(domain == null) {
+                    System.err.println("Can't resolve a domain for " + entity.getClassTermWithQualfier());
+                }
                 rdfProperty.add("rdfs:domain", "edi3:".concat(domain));
                 rdfProperty.add("rdfs:label", entity.getName());
                 rdfProperty.add("edi3:cefactID", entity.getId());
@@ -218,7 +211,7 @@ public class BSPToJSONLDVocabulary {
             if (cleanup){
                 return cleanUp(result);
             }
-            return result;
+            return StringUtils.defaultIfEmpty(result, "");
         }
         return "";
     }

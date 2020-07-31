@@ -1,5 +1,7 @@
 package org.edi3.jsonld;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class Entity {
     String id;
     String type;
@@ -53,7 +55,7 @@ public class Entity {
     }
 
     public void setObjectClassTermQualifier(String objectClassTermQualifier) {
-        this.objectClassTermQualifier = objectClassTermQualifier;
+        this.objectClassTermQualifier = StringUtils.defaultIfEmpty(objectClassTermQualifier, "");
     }
 
     public String getObjectClassTerm() {
@@ -69,7 +71,7 @@ public class Entity {
     }
 
     public void setPropertyTermQualifier(String propertyTermQualifier) {
-        this.propertyTermQualifier = propertyTermQualifier;
+        this.propertyTermQualifier = StringUtils.defaultIfEmpty(propertyTermQualifier, "");;
     }
 
     public String getPropertyTerm() {
@@ -109,7 +111,7 @@ public class Entity {
     }
 
     public void setAssociatedObjectClassTermQualifier(String associatedObjectClassTermQualifier) {
-        this.associatedObjectClassTermQualifier = associatedObjectClassTermQualifier;
+        this.associatedObjectClassTermQualifier = StringUtils.defaultIfEmpty(associatedObjectClassTermQualifier, "");;
     }
 
     public String getAssociatedObjectClassTerm() {
@@ -117,7 +119,7 @@ public class Entity {
     }
 
     public void setAssociatedObjectClassTerm(String associatedObjectClassTerm) {
-        this.associatedObjectClassTerm = associatedObjectClassTerm;
+        this.associatedObjectClassTerm = StringUtils.defaultIfEmpty(associatedObjectClassTerm, "");;
     }
 
     public String getBusinessTerm() {
@@ -126,5 +128,17 @@ public class Entity {
 
     public void setBusinessTerm(String businessTerm) {
         this.businessTerm = businessTerm;
+    }
+
+    public String getClassTermWithQualfier(){
+        return this.objectClassTermQualifier.concat(this.objectClassTerm);
+    }
+
+    public String getAssociatedClassTermWithQualifier(){
+        return this.associatedObjectClassTermQualifier.concat(this.associatedObjectClassTerm);
+    }
+
+    public String getPropertyTermWithQualifier(){
+        return this.propertyTermQualifier.concat(this.propertyTerm);
     }
 }
